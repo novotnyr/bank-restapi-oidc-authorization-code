@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -17,10 +19,12 @@ import java.math.BigDecimal;
 
 @SpringBootApplication
 @RestController
+@EnableMethodSecurity
 public class BankApplication {
     public static final Logger logger = LoggerFactory.getLogger(BankApplication.class);
 
     @GetMapping("/accounts/{accountId}/balance")
+    @PreAuthorize("hasAuthority('creditor')")
     public BigDecimal getBalance(@PathVariable String accountId, @AuthenticationPrincipal OidcUser oicUser) {
         String userId = oicUser.getPreferredUsername();
         logger.info("Retrieving bank account balance: account: {}, user {}", accountId, userId);
